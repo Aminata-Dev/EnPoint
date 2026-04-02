@@ -1,2 +1,3 @@
 # EnPoint
-Auto-coaching to learn English vocabulary
+
+Get your English on Point with EnPoint : Auto-coaching to become fluent in english

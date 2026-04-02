@@ -8,9 +8,24 @@ import numpy as np  # Library for numerical operations on audio data
 from faster_whisper import WhisperModel  # AI model for speech-to-text
 import time  # For adding pauses between recordings
 
+# Function to calculate RMS (Root Mean Square) power - used to detect silence
+def calculate_rms(audio_chunk):
+    """Calculate RMS power of audio chunk to determine noise level."""
+    audio_np = np.frombuffer(audio_chunk, dtype=np.int16).astype(np.float32)
+    rms = np.sqrt(np.mean(audio_np ** 2))
+    return rms
+
+# Function to detect silence
+def is_silence(audio_chunk, threshold=500):
+    """
+    Check if audio chunk is silent (below threshold).
+    threshold: RMS value below which audio is considered silent (default 500)
+    """
+    rms = calculate_rms(audio_chunk)
+    return rms < threshold
+
 # Initialize the Whisper AI model
 # "tiny.en" is a small, fast model optimized for English
-# Change to "small" for better accuracy (but slower processing)
 model_size = "tiny.en"
 model = WhisperModel(model_size, device="cpu", compute_type="int8")
 
@@ -24,7 +39,7 @@ RATE = 16000  # Sampling rate: 16,000 samples per second
 CHUNK = 1024  # Buffer size: read 1024 samples at a time
               # Instead of reading the whole recording at once, we process it in small pieces
               # This makes the program more responsive and uses less memory
-RECORD_SECONDS = 5  # How long to record each chunk of audio (in seconds)
+SILENCE_THRESHOLD = 1.5 # Seconds of silence needed to trigger transcription
 
 # Initialize PyAudio - this handles the microphone input
 audio = pyaudio.PyAudio()
@@ -38,20 +53,31 @@ stream = audio.open(format=FORMAT,      # Audio format we specified
                     frames_per_buffer=CHUNK)  # Read in chunks of 1024 samples
 
 print("Live Speech-to-Text started. Speak into the microphone...")
-print("Press Ctrl+C to stop.")
+print("The script will auto-transcribe when it detects XX second of silence.")
+print("Press Ctrl+C to stop.\n")
 
 try:
     while True:  # Main loop - keeps recording and transcribing forever
-        # print("\nRecording... Speak now!")
         frames = []  # List to store audio data chunks
-
-        # Record audio for the specified number of seconds
-        # We calculate how many chunks we need: (samples/second * seconds) / chunk_size
-        for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+        silence_duration = 0  # Track consecutive silence time in seconds
+        
+        
+        while True:  # Inner loop - records until silence is detected
             data = stream.read(CHUNK)  # Read one chunk from the microphone
-            frames.append(data)        # Add it to our list
-
-
+            frames.append(data)
+            
+            # Check if this chunk is silent
+            if is_silence(data, threshold=500):
+                silence_duration += (CHUNK / RATE)  # Add chunk duration to silence counter
+            else:
+                silence_duration = 0  # Reset if sound is detected
+            
+            # If silence has lasted long enough, stop recording and transcribe
+            if silence_duration >= SILENCE_THRESHOLD:
+                # print("\r" + " " * 30 + "\r", end="")  # Clear "Listening" text
+                # print("Silence detected. Processing...")
+                break
+        
         # Convert the recorded audio to a format Whisper can understand
         # First, join all the chunks into one big block of audio data
         audio_data = b''.join(frames)
@@ -67,15 +93,10 @@ try:
         # Combine all the transcribed text segments into one string
         transcribed_text = ""
         for segment in segments:
-            print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+            # print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
             transcribed_text += segment.text + " "
-
-        # Print the final transcribed text
-        print(f"Transcribed: {transcribed_text.strip()}")
-
-        # Wait 1 second before starting the next recording
-        # This gives you time to see the result and prepare for the next chunk
-        # time.sleep(1)
+        
+        print(transcribed_text.strip())
 
 except KeyboardInterrupt:  # This catches when you press Ctrl+C
     print("\nStopping...")
