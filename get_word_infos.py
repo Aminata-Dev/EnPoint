@@ -1,5 +1,6 @@
 import time
 import requests
+from bs4 import BeautifulSoup
 
 # Header compliant with Wikimedia User-Agent policy
 headers = {
@@ -14,9 +15,10 @@ class WordInfoFetcher:
     """
     
     def __init__(self, word):
-        self.word = word
+        self.word = word.lower()  # Normalize the word to lowercase
         self.last_request_time = 0  # Timestamp of the last request
         self.word_infos = self.get_word_info()  # To store the retrieved data for later use
+        self.pronunciation = self.get_pronunciation() # good pratice ?
     
     def _wait_for_rate_limit(self):
         """Wait if necessary to respect the rate of 5 req/sec"""
@@ -32,18 +34,24 @@ class WordInfoFetcher:
         Returns JSON data or None on error.
         """
         self._wait_for_rate_limit()
-        url = f"https://en.wiktionary.org/api/rest_v1/page/definition/{self.word}"
-        try:
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                return response.json()
-            else:
-                print(f"HTTP error {response.status_code} for word '{self.word}'")
-                return None
-        except Exception as e:
-            print(f"Error retrieving '{self.word}': {e}")
-            return None
+        url = f"https://en.wiktionary.org/wiki/{self.word}"
+        r = requests.get(url, headers=headers)
+        soup = BeautifulSoup(r.text, "html.parser")
+        
+        return soup
+        
+    def get_pronunciation(self):
+        """
+        Wikitionary : IPA transcription retrieval
+        """
 
+        #model
+        #<span class="IPA nowrap">/ˈɔː.di.əʊ/</span>
+  
+        for span in self.word_infos.find("span", class_="IPA nowrap"): #first = received pronunciation
+            pronunciation = span.text
+        
+        return pronunciation
 
 # Synchronous function for compatibility
 def get_wiktionary_data(word):
@@ -53,9 +61,5 @@ def get_wiktionary_data(word):
 if __name__ == "__main__":
     word = "audio"
     fetcher_audio = WordInfoFetcher(word)
-    data = fetcher_audio.get_word_info()["en"]
-
-    if isinstance(data, list):
-        print(data)
-    elif isinstance(data, dict):
-        print(data.keys())
+    # print(fetcher_audio.word_infos.prettify())
+    print(fetcher_audio.get_pronunciation())

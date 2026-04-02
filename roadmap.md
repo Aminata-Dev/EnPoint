@@ -1,10 +1,13 @@
 # Next step
 
-- fuctional wikitionary scraper (get IPA transcription) based on bs4 (cf Obervatoire du mot project)
+- Live STT needs to return the result so I can  compare it to the test word and send a congrats if it corresponds
+- improve wikitionary scraper
+  - handle case where the word doesn't exist
+  - in then end, every function will be called in the init() method so that we can retreive info by fetcher_for_audio.pronunciation or .definition
 - UI (JavaScript/TypeScript ? Streamlit ?)
   - Link to YouGlish page of the words (the video will be embedded to the UI if possible)
 
-# Speech-to-text improvement
+## Speech-to-text improvement
 
 - I should wait for silence to stop, not seconds
 - Enhance responsiveness of the speech-to-text system :
