@@ -52,14 +52,23 @@ class WordInfoFetcher:
             pronunciation = span.text
         
         return pronunciation
+    
+    def get_youglish_uk_pronunciation_video(self):
+        """Youglish : pronunciation video retrieval"""
+        return f"https://youglish.com/pronounce/{self.word}/english/uk/"
+    
+    def show_word_infos(self):
+        """Utility method to print the retrieved word information in a readable format.
+        Those infos will be displayed in the UI
+        """
+        print(f"Pronunciation: {self.pronunciation}")
+        print(f"Youglish UK Pronunciation Youtube videos: {self.get_youglish_uk_pronunciation_video()}")
+        return
 
-# Synchronous function for compatibility
-def get_wiktionary_data(word):
-    fetcher_audio = WordInfoFetcher(word)
-    return fetcher_audio.get_word_info()
 
 if __name__ == "__main__":
     word = "audio"
     fetcher_audio = WordInfoFetcher(word)
     # print(fetcher_audio.word_infos.prettify())
     print(fetcher_audio.get_pronunciation())
+    print(fetcher_audio.get_youglish_uk_pronunciation_video())
