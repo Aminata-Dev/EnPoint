@@ -22,6 +22,9 @@
     - Real-time streaming: Use a different library like speech_recognition with Google API (faster but less accurate)
     - Parallel processing: Record in one thread, transcribe in another
 
+## Scraper
+
+- Associate examples with their definitions
 
 # Word test
 
@@ -37,3 +40,4 @@
 - Add a youglish link fetcher on the fetcher class
 - Add a show method to the fetcher. Will be all the infos on the UI
 - Silence detection
+- Include phrasal verbs
