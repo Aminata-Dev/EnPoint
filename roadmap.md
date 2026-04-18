@@ -2,12 +2,6 @@ IPA stands for [International Phonetic Transcription](https://en.wikipedia.org/w
 
 # Enhancements
 
-
-
-  
-
-
-
 ## Live speech-to-text enhancements
 
 - ~~silence detection : wait for silence to stop, not seconds~~
@@ -22,6 +16,7 @@ IPA stands for [International Phonetic Transcription](https://en.wikipedia.org/w
 
 ## Application
 
+- simple UI where I can play with IPA symbols
 - UI : Generate a JavaScript/TypeScript web app. What I need :
   - Aesethics
   - Embedded Youtube videos
@@ -33,8 +28,11 @@ IPA stands for [International Phonetic Transcription](https://en.wikipedia.org/w
   - Save to .png button
   - Considered technologies : React (Python Fast API), Tailwind CSS + Shadcn/ui ...
 - Use a second laptop or raspberry pi to run a server for my app (generate dashbord, record word in database, save .png dashboard, log, ...)
+- Figure out how to integrate a **small language model with personalized system prompt** into the UI to quiz and discuss with the user about the word, the pronunciation, ...
 
 ## Scraper
+
+-b Add a save to CSV only for pronunciation in three columns : word, IPA transcription \n YouGlish video link, notes
 
 # History
 
@@ -44,8 +42,8 @@ IPA stands for [International Phonetic Transcription](https://en.wikipedia.org/w
 - Add a youglish link fetcher on the fetcher class
 - Add a show method to the fetcher. Will be all the infos on the UI
 - Silence detection
-
-- Add a readme and make the repo public
+~~- Add a readme and make the repo public~~
+- Save to CSV method : Instead of manually filling my Notion database as I encounter new words, I'd rather use my application and import a file the app creates in my Notion. Easier than than all the copy-pasting and manual filling I do.
 
 
 ## Reflexions on information source for definitions, examples, british english phonectic transcription

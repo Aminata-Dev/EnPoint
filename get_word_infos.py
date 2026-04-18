@@ -1,6 +1,8 @@
 import time
 import requests
 from bs4 import BeautifulSoup
+import csv
+import os
 
 # Header to bypass Cambridge Dictionary limitations
 headers = {
@@ -14,14 +16,19 @@ class WordInfoFetcher:
     """
     
     def __init__(self, word):
-        self.word = word.lower()  # Normalize the word to lowercase
-        self.last_request_time = 0  # Timestamp of the last request
+
+        self.word = word.lower()
         url_word = self.word.replace(' ', '-')  # Replace spaces with hyphens for phrasal verbs
         self.cambridge_url = f"https://dictionary.cambridge.org/dictionary/english/{url_word}"
-        self.word_soup = self.get_word_soup()  # To store the retrieved soup for later use
-        self.pronunciation = self.get_english_transcription()  # English IPA transcription
-        self.definitions = self.get_definitions()  # List of definitions
-        self.examples = self.get_examples()  # List of examples
+
+        
+        self.last_request_time = 0  # Timestamp of the last request in order to not be detected as a bot by Cambridge Dictionary #doesn't seem to work well
+        
+        self.word_soup = self.get_word_soup()  # store the retrieved soup for later use
+        self.pronunciation = self.get_english_transcription() 
+        self.definitions = self.get_definitions()
+        self.examples = self.get_examples()
+
     
     def _wait_for_rate_limit(self):
         """Wait if necessary to respect the rate of 5 req/sec"""
@@ -65,13 +72,13 @@ class WordInfoFetcher:
         if self.word_soup is None:
             return []
         
-        definitions = []
+        definitions = set()  # Use a set to avoid duplicates
         for block in self.word_soup.find_all('div', class_='def-block'):
             definition_tag = block.find('div', class_='def')
             if definition_tag:
-                clean_def = definition_tag.get_text()#.strip().rstrip(':')
-                definitions.append(clean_def)
-        return definitions
+                clean_def = definition_tag.get_text().strip().rstrip(':')
+                definitions.add(clean_def)
+        return list(definitions) # Convert back to list for consistent return type
     
     def get_examples(self):
         """
@@ -92,7 +99,33 @@ class WordInfoFetcher:
         """Youglish : pronunciation video retrieval"""
         url_word = self.word.replace(' ', '-')  # Replace spaces with hyphens for phrasal verbs
         return f"https://youglish.com/pronounce/{url_word}/english/uk/"
-    
+
+
+    def save_word_info_to_csv(self, filename="vocabulary_database.csv"):
+        """
+        Create a CSV for my Notion
+        """
+        # visual separator : "|" for multiple definitions/examples in the same cell
+        definition_text = " | ".join(self.definitions)
+        exemple_text = " | ".join(self.examples)
+        
+        # my Notion columns
+        headers = ["Mot / Expression", "Pronunciation", "Sens", "Exemple (phrase)"] #to-do : to translate in english
+        row = [self.word, f"{self.pronunciation}\n{self.get_youglish_uk_pronunciation_video()}", definition_text, exemple_text]
+        
+        file_exists = os.path.isfile(filename)
+        
+        # Use utf-8-sig to ensure special characters like IPA symbols are correctly read by Excel/Notion
+        with open(filename, mode='a', newline='', encoding='utf-8-sig') as f:
+            writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            
+            if not file_exists:
+                writer.writerow(headers)
+                
+            writer.writerow(row)
+        
+        print(f"✅ '{self.word}' added to {filename}")
+
     def show_word_infos(self):
         """Utility method to print the retrieved word information in a readable format.
         Those infos will be displayed in the UI
@@ -123,13 +156,15 @@ class WordInfoFetcher:
 
 
 if __name__ == "__main__":
-    word = "fan out"  # Test with phrasal verb
+    word = "grunt"  # Test with phrasal verb
     fetcher = WordInfoFetcher(word)
 
     # print(fetcher.get_examples())
-    fetcher.show_word_infos()
+    # fetcher.show_word_infos()
     # print(fetcher.word_soup.prettify())
     # print(fetcher.get_english_transcription())
     # print(fetcher.get_definitions())
     # print(fetcher.get_examples())
-    # print(fetcher.get_youglish_uk_pronunciation_video())
+    print(fetcher.get_youglish_uk_pronunciation_video())
+
+    fetcher.save_word_info_to_csv()
