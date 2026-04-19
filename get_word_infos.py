@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import requests
 from bs4 import BeautifulSoup
@@ -15,8 +16,8 @@ class WordInfoFetcher:
     respecting rate limits for unauthenticated requests.
     """
     
-    def __init__(self, word):
-
+    def __init__(self, word, source=""): #to-do : add for which reason we need to fetch information : definition or pronunciation purpose
+    
         self.word = word.lower()
         url_word = self.word.replace(' ', '-')  # Replace spaces with hyphens for phrasal verbs
         self.cambridge_url = f"https://dictionary.cambridge.org/dictionary/english/{url_word}"
@@ -28,6 +29,9 @@ class WordInfoFetcher:
         self.pronunciation = self.get_english_transcription() 
         self.definitions = self.get_definitions()
         self.examples = self.get_examples()
+
+        self.source = source
+        self.save_word_info_to_csv(filename="vocabulary_history", source = self.source, display_message=False)
 
     
     def _wait_for_rate_limit(self):
@@ -101,7 +105,7 @@ class WordInfoFetcher:
         return f"https://youglish.com/pronounce/{url_word}/english/uk/"
 
 
-    def save_word_info_to_csv(self, filename="vocabulary_database.csv"):
+    def save_word_info_to_csv(self, filename="vocabulary_database", source="", display_message=True):
         """
         Create a CSV for my Notion
         """
@@ -110,13 +114,14 @@ class WordInfoFetcher:
         exemple_text = " | ".join(self.examples)
         
         # my Notion columns
-        headers = ["Mot / Expression", "Pronunciation", "Sens", "Exemple (phrase)"] #to-do : to translate in english
-        row = [self.word, f"{self.pronunciation}\n{self.get_youglish_uk_pronunciation_video()}", definition_text, exemple_text]
+        headers = ["Mot / Expression", "Pronunciation", "Sens", "Exemple (phrase)", "Date", "Source"] #to-do : translate headers to english
+        row = [self.word, f"{self.pronunciation} ({self.get_youglish_uk_pronunciation_video()})", definition_text, exemple_text, datetime.now().strftime("%Y-%m-%d"), source]
         
-        file_exists = os.path.isfile(filename)
+        file = f"{filename}.csv"
+        file_exists = os.path.isfile(file)
         
         # Use utf-8-sig to ensure special characters like IPA symbols are correctly read by Excel/Notion
-        with open(filename, mode='a', newline='', encoding='utf-8-sig') as f:
+        with open(file, mode='a', newline='', encoding='utf-8-sig') as f:
             writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             
             if not file_exists:
@@ -124,7 +129,8 @@ class WordInfoFetcher:
                 
             writer.writerow(row)
         
-        print(f"✅ '{self.word}' added to {filename}")
+        if display_message:
+            print(f"✅ '{self.word}' added to {file}")
 
     def show_word_infos(self):
         """Utility method to print the retrieved word information in a readable format.
@@ -136,10 +142,10 @@ class WordInfoFetcher:
 
         print("\n" + "-" * 30 + "\n")
 
-        print("PRONUNCIATION PART:")
+        print("BRITISH ENGLISH PRONUNCIATION PART:")
 
-        print(f" > English Transcription: {self.pronunciation}")
-        print(f" > Youglish UK Pronunciation Youtube videos: {self.get_youglish_uk_pronunciation_video()}")
+        print(f" > Phonetic Transcription: {self.pronunciation}")
+        print(f" > Pronunciation Youtube videos (Youglish): {self.get_youglish_uk_pronunciation_video()}")
 
         print("-" * 30)
 
@@ -167,4 +173,4 @@ if __name__ == "__main__":
     # print(fetcher.get_examples())
     print(fetcher.get_youglish_uk_pronunciation_video())
 
-    fetcher.save_word_info_to_csv()
+    # fetcher.save_word_info_to_csv()

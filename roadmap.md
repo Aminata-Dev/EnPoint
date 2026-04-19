@@ -30,9 +30,15 @@ IPA stands for [International Phonetic Transcription](https://en.wikipedia.org/w
 - Use a second laptop or raspberry pi to run a server for my app (generate dashbord, record word in database, save .png dashboard, log, ...)
 - Figure out how to integrate a **small language model with personalized system prompt** into the UI to quiz and discuss with the user about the word, the pronunciation, ...
 
+### IPA (international phonetic alphabet) part
+
+- the [best repository I found about IPA quiz](https://github.com/Tc14Hd/IPA-Quiz/tree/main) (among four). The way of doing (use a .txt with all pronunciation instead of scraping it) made me look for a dataset on the web and bingo : [.txt UK pronunciation of lots of words *and their inflections*](https://raw.githubusercontent.com/open-dict-data/ipa-dict/refs/heads/master/data/en_UK.txt)
+- binary search in the .txt file to get the pronunciation of a word fast.
+
 ## Scraper
 
--b Add a save to CSV only for pronunciation in three columns : word, IPA transcription \n YouGlish video link, notes
+- Add a save to CSV only for pronunciation in three columns : word, IPA transcription \n YouGlish video link, notes
+-  #to-do : add for which reason we need to fetch information : definition or pronunciation purpose. It only changes into which file we save the info : pronunciation  (three columns) or definition file (more columns)
 
 # History
 
