@@ -16,7 +16,7 @@ class WordInfoFetcher:
     respecting rate limits for unauthenticated requests.
     """
     
-    def __init__(self, word, source=""): #to-do : add for which reason we need to fetch information : definition or pronunciation purpose
+    def __init__(self, word):
     
         self.word = word.lower()
         url_word = self.word.replace(' ', '-')  # Replace spaces with hyphens for phrasal verbs
@@ -29,9 +29,6 @@ class WordInfoFetcher:
         self.pronunciation = self.get_english_transcription() 
         self.definitions = self.get_definitions()
         self.examples = self.get_examples()
-
-        self.source = source
-        self.save_word_info_to_csv(filename="vocabulary_history", source = self.source, display_message=False)
 
     
     def _wait_for_rate_limit(self):
@@ -105,7 +102,7 @@ class WordInfoFetcher:
         return f"https://youglish.com/pronounce/{url_word}/english/uk/"
 
 
-    def save_word_info_to_csv(self, filename="vocabulary_database", source="", display_message=True):
+    def save_word_info_to_csv(self, filename="vocabulary_history", source = None, example = None, display_message=True): #add the reason for which we need to fetch the word : definition or pronunciation purpose
         """
         Create a CSV for my Notion
         """
@@ -113,9 +110,9 @@ class WordInfoFetcher:
         definition_text = " | ".join(self.definitions)
         exemple_text = " | ".join(self.examples)
         
-        # my Notion columns
-        headers = ["Mot / Expression", "Pronunciation", "Sens", "Exemple (phrase)", "Date", "Source"] #to-do : translate headers to english
-        row = [self.word, f"{self.pronunciation} ({self.get_youglish_uk_pronunciation_video()})", definition_text, exemple_text, datetime.now().strftime("%Y-%m-%d"), source]
+        # my Notion columns #to-do : translate headers to english
+        headers = ["Mot / Expression", "Pronunciation", "Sens", "Exemple (phrase)", "Date", "Source"] 
+        row = [self.word, f"{self.pronunciation}\n{self.get_youglish_uk_pronunciation_video()}", definition_text, (f"{example}\n{exemple_text}" if example is not None else exemple_text), datetime.now().strftime("%Y-%m-%d"), (source if source is not None else "")]
         
         file = f"{filename}.csv"
         file_exists = os.path.isfile(file)
@@ -162,15 +159,25 @@ class WordInfoFetcher:
 
 
 if __name__ == "__main__":
-    word = "grunt"  # Test with phrasal verb
+    word = "reaper"
+    
     fetcher = WordInfoFetcher(word)
 
+    fetcher.save_word_info_to_csv(
+        # source = "Wake Up! song",
+#         example = """With my lightning bolts a glowing
+# I can see where I am going to be
+# When the reaper reaches and touches my hand
+#         """
+    )
     # print(fetcher.get_examples())
-    # fetcher.show_word_infos()
+    fetcher.show_word_infos()
+    
+
     # print(fetcher.word_soup.prettify())
     # print(fetcher.get_english_transcription())
     # print(fetcher.get_definitions())
     # print(fetcher.get_examples())
-    print(fetcher.get_youglish_uk_pronunciation_video())
+    # print(fetcher.get_youglish_uk_pronunciation_video())
 
-    # fetcher.save_word_info_to_csv()
+    
