@@ -2,6 +2,13 @@ IPA stands for [International Phonetic Transcription](https://en.wikipedia.org/w
 
 # Enhancements
 
+
+
+## AI-part
+
+- Add ways to personalized pronunciation tutor
+- Add ossibility to use local model for pronunciation tutor
+
 ## Live speech-to-text enhancements
 
 - ~~silence detection : wait for silence to stop, not seconds~~
@@ -16,6 +23,7 @@ IPA stands for [International Phonetic Transcription](https://en.wikipedia.org/w
 
 ## Application
 
+- integrate a **small language model** with personalized system prompt into the UI to quiz and discuss with the user about the word, the pronunciation, ... Add a chat interface.
 - simple UI where I can play with IPA symbols
 - UI : Generate a JavaScript/TypeScript web app. What I need :
   - Aesethics
@@ -42,6 +50,7 @@ IPA stands for [International Phonetic Transcription](https://en.wikipedia.org/w
 
 # History
 
+- Add LLM to code : weak vs. week pronunciation.
 - try multiple model on faster-api
 - class creation -fetcher- because the scraping needed the same user-agent and type of verification about requests (see politcy) -> a class was better adapted to get multiple infos around a same word 
 - Add main_application_ipynb which simulates the application to test different modules in a same place
