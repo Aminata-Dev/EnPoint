@@ -24,7 +24,7 @@ IPA stands for [International Phonetic Transcription](https://en.wikipedia.org/w
 ## Application
 
 - integrate a **small language model** with personalized system prompt into the UI to quiz and discuss with the user about the word, the pronunciation, ... Add a chat interface.
-- simple UI where I can play with IPA symbols
+- simple UI where I can play with IPA symbols : https://gemini.google.com/u/0/app/15b717211ba870cd and that communicate with the backend to ask transcription error. Test : horizon zero dawn
 - UI : Generate a JavaScript/TypeScript web app. What I need :
   - Aesethics
   - Embedded Youtube videos
